@@ -2,24 +2,30 @@ package com.example.birdsofguatemala.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.birdsofguatemala.data.model.BirdItem
-import com.example.birdsofguatemala.data.repository.BirdRepository
+import com.example.birdsofguatemala.model.BirdItem
+import com.example.birdsofguatemala.repository.BirdRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class BirdViewModel : ViewModel() {
 
-    private val repo = BirdRepository()
+    private val repository = BirdRepository()
 
     private val _birds = MutableStateFlow<List<BirdItem>>(emptyList())
-    val birds: StateFlow<List<BirdItem>> get() = _birds
+    val birds: StateFlow<List<BirdItem>> = _birds
 
-    init { fetchBirds() }
+    private val _loading = MutableStateFlow(true)
+    val loading: StateFlow<Boolean> = _loading
 
-    fun fetchBirds() {
+    init { loadBirds() }
+
+    fun loadBirds() {
         viewModelScope.launch {
-            _birds.value = repo.loadBirds()
+            _loading.value = true
+            val data = repository.fetchBirds()
+            _birds.value = data
+            _loading.value = false
         }
     }
 }

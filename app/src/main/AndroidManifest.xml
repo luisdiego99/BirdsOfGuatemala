@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.birdsofguatemala">
 
-    <!-- 🔥 REQUIRED FOR RETROFIT / API CALLS -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -14,19 +12,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BirdsOfGuatemala">
 
-        <!-- 🟩 SECOND SCREEN (API LIST) -->
-        <activity android:name=".BirdListActivity" />
-
-        <!-- 🏠 MAIN SCREEN (HOME / GO BUTTON) -->
+        <!-- HomeActivity is the launcher (first screen) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".HomeActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-    </application>
+        <!-- Bird list screen (opened when user presses GO) -->
+        <activity
+            android:name=".BirdListActivity"
+            android:exported="false" />
 
+        <!-- If you still have other activities, declare them here -->
+        <activity android:name=".MainActivity" android:exported="false" />
+    </application>
 </manifest>

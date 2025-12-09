@@ -6,87 +6,76 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.birdsofguatemala.ui.theme.BirdsOfGuatemalaTheme
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 
-class MainActivity : ComponentActivity() {
+class HomeActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BirdsOfGuatemalaTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    HomeScreen()
-                }
-            }
+            HomeScreen(onGo = {
+                // Start BirdListActivity when GO is pressed
+                startActivity(Intent(this@HomeActivity, BirdListActivity::class.java))
+            })
         }
     }
 }
 
 @Composable
-fun HomeScreen() {
-    val context = LocalContext.current
-
+fun HomeScreen(onGo: () -> Unit) {
+    // Layout split into three vertical thirds using weights
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        // Top third: Title
+        // Top third - title centered in top third
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Birds of Guatemala",
-                fontSize = 32.sp,
-                color = MaterialTheme.colorScheme.primary
+                fontSize = 28.sp,
+                textAlign = TextAlign.Center
             )
         }
 
-        // Middle third: Name and ID
+        // Middle third - name and ID centered in that third
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = "Luis Diego Hernández León", fontSize = 20.sp)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "24000343", fontSize = 20.sp)
+                Text(text = "24000343", fontSize = 18.sp)
             }
         }
 
-        // Bottom third: GO button
+        // Bottom third - GO button centered
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentAlignment = Alignment.TopCenter
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
             Button(
-                onClick = {
-                    // This is what launches BirdListActivity
-                    val intent = Intent(context, BirdListActivity::class.java)
-                    context.startActivity(intent)
-                },
-                modifier = Modifier.padding(16.dp)
-
+                onClick = onGo,
+                modifier = Modifier
+                    .padding(horizontal = 40.dp)
+                    .fillMaxWidth()
             ) {
                 Text(text = "GO")
             }

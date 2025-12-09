@@ -59,4 +59,6 @@ dependencies {
 
     // Images (you may use this later for bird photos)
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+
 }

@@ -1,56 +1,120 @@
 package com.example.birdsofguatemala.ui.screens
 
 import android.media.MediaPlayer
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.birdsofguatemala.model.BirdItem
 import com.example.birdsofguatemala.viewmodel.BirdViewModel
 
 @Composable
-fun BirdListScreen(vm: BirdViewModel = viewModel()) {
+fun BirdListScreen(
+    viewModel: BirdViewModel = BirdViewModel(),
+    onBirdClick: (BirdItem) -> Unit = {}
+) {
+    val birds by viewModel.birds.collectAsState()
+    val context = LocalContext.current
+    var currentPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Birds of Guatemala") })
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Birds of Guatemala",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
         }
+
     ) { padding ->
 
-        Column(modifier = Modifier.padding(padding)) {
+        if (birds.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No birds found")
+            }
+        } else {
 
-            val birds = vm.birds.collectAsState().value
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(Color(0xFFF5F5F5))
+                    .padding(12.dp)
+            ) {
 
-            Column(Modifier.verticalScroll(rememberScrollState()).fillMaxWidth()) {
-                birds.forEach { bird ->
-
-                    var player: MediaPlayer? by remember { mutableStateOf(null) }
+                items(birds) { bird ->
 
                     Card(
                         modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { onBirdClick(bird) },
+                        shape = CardDefaults.shape,
                         elevation = CardDefaults.cardElevation(6.dp)
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
 
-                            Button(onClick = {
-                                player?.release()
-                                player = MediaPlayer().apply {
-                                    setDataSource(bird.file)
-                                    prepare()
-                                    start()
-                                }
-                            }) {
-                                Text(bird.en)
+                        Column(modifier = Modifier.padding(14.dp)) {
+
+                            Text(
+                                text = bird.commonName,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = bird.scientificName,
+                                fontStyle = FontStyle.Italic,
+                                color = Color.DarkGray,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Spacer(Modifier.height(6.dp))
+
+                            Text("📍 ${bird.location}", color = Color(0xFF37474F))
+                            Text("🎙 ${bird.recordist}", color = Color(0xFF455A64))
+
+                            Spacer(Modifier.height(10.dp))
+
+                            Button(
+                                onClick = {
+                                    if (currentPlayer != null && currentPlayer!!.isPlaying) {
+                                        currentPlayer!!.stop()
+                                        currentPlayer!!.reset()
+                                        currentPlayer = null
+                                    } else {
+                                        currentPlayer?.stop()
+                                        currentPlayer?.reset()
+
+                                        currentPlayer = MediaPlayer().apply {
+                                            setDataSource(bird.audioUrl)
+                                            prepareAsync()
+                                            setOnPreparedListener { start() }
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("🔊 Play / Stop Audio")
                             }
-
-                            Text("Generic Name: ${bird.gen}")
-                            Text("Specific Name: ${bird.sp}")
-                            Text("Location: ${bird.loc}")
-                            Text("Recordist: ${bird.rec}")
                         }
                     }
                 }
